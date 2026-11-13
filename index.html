@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#58cc02">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RusLearn">
+  <title>RusLearn — Apprends le Russe</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+  <link rel="icon" href="icons/icon-192.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #58cc02;
+      --green-dark: #45a800;
+      --green-light: #d7f9b4;
+      --blue: #1cb0f6;
+      --blue-dark: #0094d3;
+      --orange: #ff9600;
+      --red: #ff4b4b;
+      --red-light: #ffd9d9;
+      --gold: #ffc800;
+      --bg: #f7f7f7;
+      --white: #ffffff;
+      --text: #3c3c3c;
+      --muted: #afafaf;
+      --border: #e5e5e5;
+      --shadow: 0 4px 0;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      overscroll-behavior: none;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* ===== LOGIN SCREEN ===== */
+    #screen-login {
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      background: linear-gradient(160deg, #f0fff0 0%, #e8f5ff 100%);
+    }
+    .login-logo {
+      font-size: 72px;
+      margin-bottom: 8px;
+      animation: bounce 1s ease infinite alternate;
+    }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+    .login-title { font-size: 28px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+    .login-sub { font-size: 15px; color: var(--muted); font-weight: 600; margin-bottom: 36px; }
+    .login-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 4px 0 #d0d0d0;
+    }
+    .login-card h2 { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 20px; text-align: center; }
+    .user-select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .user-btn {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: 'Nunito', sans-serif;
+    }
+    .user-btn:hover, .user-btn.selected {
+      border-color: var(--green);
+      background: var(--green-light);
+    }
+    .user-btn .avatar { font-size: 32px; margin-bottom: 6px; }
+    .user-btn .uname { font-size: 14px; font-weight: 800; color: var(--text); }
+    .user-btn .ustats { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+    .pin-section { display: none; }
+    .pin-label { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 10px; text-align: center; }
+    .pin-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .pin-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background 0.2s;
+    }
+    .pin-dot.filled { background: var(--green); }
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .pin-key {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-bottom: 4px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.1s;
+      user-select: none;
+    }
+    .pin-key:active { transform: translateY(2px); border-bottom-width: 2px; }
+    .pin-key.del { font-size: 16px; color: var(--muted); }
+    .new-user-btn {
+      width: 100%;
+      padding: 14px;
+      background: none;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      margin-top: 4px;
+      transition: all 0.15s;
+    }
+    .new-user-btn:hover { border-color: var(--green); color: var(--green); }
+
+    /* Register form */
+    #screen-register {
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      background: linear-gradient(160deg, #f0fff0 0%, #e8f5ff 100%);
+    }
+    .reg-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 4px 0 #d0d0d0;
+    }
+    .reg-card h2 { font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
+    .reg-card p { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 24px; }
+    .avatar-pick { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .av-opt {
+      font-size: 32px; width: 56px; height: 56px;
+      border-radius: 50%; border: 3px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; background: var(--bg); transition: all 0.15s;
+    }
+    .av-opt.selected { border-color: var(--green); background: var(--green-light); transform: scale(1.1); }
+    .field-group { margin-bottom: 16px; }
+    .field-group label { font-size: 13px; font-weight: 700; color: var(--muted); display: block; margin-bottom: 6px; }
+    .field-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field-group input:focus { border-color: var(--green); }
+    .err-msg { color: var(--red); font-size: 13px; font-weight: 700; margin-top: 8px; min-height: 20px; text-align: center; }
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--green);
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 4px 0 var(--green-dark);
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.12s;
+      margin-top: 4px;
+    }
+    .btn-primary:hover { background: #4db000; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--green-dark); }
+    .btn-secondary {
+      width: 100%;
+      padding: 12px;
+      background: none;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.12s;
+    }
+    .btn-secondary:hover { border-color: var(--green); color: var(--green); }
+
+    /* ===== MAIN APP ===== */
+    #screen-home {
+      flex-direction: column;
+      background: var(--bg);
+    }
+    .app-header {
+      background: var(--white);
+      border-bottom: 2px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-user { display: flex; align-items: center; gap: 10px; }
+    .header-avatar { font-size: 28px; }
+    .header-name { font-size: 16px; font-weight: 800; color: var(--text); }
+    .header-stats { display: flex; align-items: center; gap: 12px; }
+    .stat-pill {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--bg);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .stat-pill.xp { color: var(--orange); }
+    .stat-pill.streak { color: var(--red); }
+    .home-content { flex: 1; padding: 20px; overflow-y: auto; max-width: 480px; width: 100%; margin: 0 auto; }
+    .section-title { font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; margin-top: 20px; }
+    .section-title:first-child { margin-top: 0; }
+
+    /* Lesson path */
+    .lesson-path { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .path-row { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 8px; }
+    .path-row.offset { margin-left: 60px; }
+    .path-row.offset-neg { margin-right: 60px; }
+    .lesson-node {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .lesson-node .node-icon { font-size: 28px; margin-bottom: 2px; }
+    .lesson-node.available {
+      background: var(--green);
+      box-shadow: 0 6px 0 var(--green-dark);
+      color: #fff;
+    }
+    .lesson-node.available:hover { transform: translateY(-3px); box-shadow: 0 9px 0 var(--green-dark); }
+    .lesson-node.available:active { transform: translateY(2px); box-shadow: 0 4px 0 var(--green-dark); }
+    .lesson-node.completed {
+      background: var(--green);
+      box-shadow: 0 6px 0 var(--green-dark);
+      color: #fff;
+      opacity: 0.75;
+    }
+    .lesson-node.locked {
+      background: var(--border);
+      box-shadow: 0 6px 0 #c8c8c8;
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+    .lesson-node .crown {
+      position: absolute; top: -10px; right: -4px;
+      font-size: 18px;
+    }
+    .path-connector {
+      width: 4px; height: 24px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto;
+    }
+    .path-connector.done { background: var(--green); }
+
+    /* Bottom nav */
+    .bottom-nav {
+      background: var(--white);
+      border-top: 2px solid var(--border);
+      display: flex;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+    }
+    .nav-item {
+      flex: 1; padding: 10px 4px 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      cursor: pointer; border: none; background: none;
+      font-family: 'Nunito', sans-serif;
+      font-size: 11px; font-weight: 800;
+      color: var(--muted);
+      transition: color 0.15s;
+    }
+    .nav-item.active { color: var(--green); }
+    .nav-item .nav-icon { font-size: 24px; }
+
+    /* Profile tab */
+    #tab-profile { display: none; padding: 20px; max-width: 480px; width: 100%; margin: 0 auto; }
+    .profile-hero {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 4px 0 var(--border);
+      margin-bottom: 20px;
+    }
+    .profile-hero .big-avatar { font-size: 64px; margin-bottom: 8px; }
+    .profile-hero .pname { font-size: 24px; font-weight: 900; color: var(--text); }
+    .profile-hero .plevel { font-size: 14px; color: var(--muted); font-weight: 700; margin-top: 4px; }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+    .stat-card {
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 14px 8px;
+      text-align: center;
+    }
+    .stat-card .sv { font-size: 24px; font-weight: 900; }
+    .stat-card .sl { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+    .stat-card.xp .sv { color: var(--orange); }
+    .stat-card.streak .sv { color: var(--red); }
+    .stat-card.done .sv { color: var(--green); }
+    .logout-btn {
+      width: 100%;
+      padding: 14px;
+      background: none;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.15s;
+    }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* Leaderboard tab */
+    #tab-leaderboard { display: none; padding: 20px; max-width: 480px; width: 100%; margin: 0 auto; }
+    .lb-title { font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+    .lb-sub { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 20px; }
+    .lb-row {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 0 var(--border);
+    }
+    .lb-row.me { border: 2px solid var(--green); background: #f0fff0; }
+    .lb-rank { font-size: 20px; font-weight: 900; color: var(--muted); min-width: 28px; text-align: center; }
+    .lb-rank.gold { color: var(--gold); }
+    .lb-rank.silver { color: #aaa; }
+    .lb-rank.bronze { color: #cd7f32; }
+    .lb-avatar { font-size: 32px; }
+    .lb-info { flex: 1; }
+    .lb-name { font-size: 16px; font-weight: 800; color: var(--text); }
+    .lb-xp { font-size: 13px; color: var(--muted); font-weight: 700; }
+    .lb-badge { font-size: 20px; }
+
+    /* ===== QUIZ SCREEN ===== */
+    #screen-quiz {
+      flex-direction: column;
+      background: var(--bg);
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .quiz-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--white);
+      border-bottom: 2px solid var(--border);
+    }
+    .quit-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 22px; color: var(--muted); line-height: 1; padding: 4px;
+    }
+    .quiz-progress-track {
+      flex: 1; height: 16px;
+      background: var(--border);
+      border-radius: 999px; overflow: hidden;
+    }
+    .quiz-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), #89e219);
+      border-radius: 999px;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    .quiz-hearts { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 800; color: var(--red); }
+    .quiz-body { flex: 1; padding: 20px; overflow-y: auto; }
+    .q-type { font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+    .q-bubble {
+      background: var(--white);
+      border: 2px solid #84d8ff;
+      border-radius: 20px;
+      padding: 18px 20px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a7fb5;
+      margin-bottom: 20px;
+      position: relative;
+      line-height: 1.4;
+    }
+    .q-hint { font-size: 14px; color: var(--muted); font-weight: 600; margin-top: 6px; }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .opt-btn {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-bottom: 4px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 10px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.12s;
+      line-height: 1.3;
+    }
+    .opt-btn:hover { border-color: var(--green); background: #f0fff0; transform: translateY(-1px); }
+    .opt-btn.selected { background: var(--green-light); border-color: var(--green); border-bottom-color: var(--green-dark); color: #2d6e00; }
+    .opt-btn.correct { background: var(--green-light); border-color: var(--green); color: #2d6e00; animation: popIn 0.3s ease; }
+    .opt-btn.wrong { background: var(--red-light); border-color: var(--red); color: #9b0000; animation: shake 0.4s ease; }
+    @keyframes popIn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .opt-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
+    .opt-ru { font-size: 18px; font-weight: 800; display: block; }
+    .opt-fr { font-size: 12px; color: var(--muted); display: block; margin-top: 2px; }
+    .feedback-bar {
+      margin: 16px 20px 0;
+      border-radius: 20px;
+      padding: 16px 20px;
+      display: none;
+      align-items: center;
+      gap: 14px;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .feedback-bar.ok { background: var(--green-light); border: 2px solid var(--green); }
+    .feedback-bar.ko { background: var(--red-light); border: 2px solid var(--red); }
+    .fb-icon { font-size: 30px; flex-shrink: 0; }
+    .fb-text { flex: 1; }
+    .fb-title { font-size: 17px; font-weight: 800; }
+    .ok .fb-title { color: #2d6e00; }
+    .ko .fb-title { color: #9b0000; }
+    .fb-detail { font-size: 13px; font-weight: 600; color: #5a5a5a; margin-top: 2px; }
+    .quiz-footer { padding: 12px 20px 20px; display: flex; justify-content: flex-end; }
+    .check-btn {
+      padding: 14px 32px;
+      background: var(--green);
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 4px 0 var(--green-dark);
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .check-btn:disabled { background: var(--border); box-shadow: 0 4px 0 #c8c8c8; color: var(--muted); cursor: default; }
+    .check-btn:not(:disabled):hover { background: #4db000; transform: translateY(-2px); }
+    .check-btn:not(:disabled):active { transform: translateY(2px); }
+    .continue-btn {
+      padding: 12px 24px;
+      background: var(--green);
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 3px 0 var(--green-dark);
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* Complete screen */
+    #screen-complete {
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      text-align: center;
+      background: linear-gradient(160deg, #f0fff0 0%, #e8f5ff 100%);
+    }
+    .trophy-anim { font-size: 80px; animation: tBounce 0.6s ease; margin-bottom: 10px; }
+    @keyframes tBounce { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+    .complete-title { font-size: 30px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+    .complete-sub { font-size: 16px; font-weight: 600; color: var(--muted); margin-bottom: 28px; }
+    .complete-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%; max-width: 360px; margin-bottom: 28px; }
+    .cs-box { background: var(--white); border-radius: 16px; padding: 18px 10px; box-shadow: 0 4px 0 var(--border); }
+    .cs-val { font-size: 28px; font-weight: 900; }
+    .cs-lab { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+    .cs-xp .cs-val { color: var(--orange); }
+    .cs-time .cs-val { color: var(--blue); }
+    .cs-acc .cs-val { color: var(--green); }
+    .home-btn {
+      padding: 14px 48px;
+      background: var(--green);
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 4px 0 var(--green-dark);
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .home-btn:hover { background: #4db000; transform: translateY(-2px); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: var(--text); color: #fff;
+      padding: 10px 20px; border-radius: 999px;
+      font-size: 14px; font-weight: 700;
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; z-index: 100;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+
+    /* Loading */
+    .loading-screen {
+      position: fixed; inset: 0;
+      background: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+      z-index: 999;
+    }
+    .loading-owl { font-size: 64px; animation: bounce 0.8s ease infinite alternate; }
+    .loading-text { font-size: 16px; font-weight: 700; color: var(--muted); }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid var(--border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-screen" id="loading">
+  <div class="loading-owl">🦉</div>
+  <div class="loading-text">Chargement...</div>
+  <div class="spinner"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div class="screen" id="screen-login">
+  <div class="login-logo">🦉</div>
+  <div class="login-title">RusLearn</div>
+  <div class="login-sub">Apprends le russe en t'amusant</div>
+  <div class="login-card">
+    <h2>Qui es-tu ?</h2>
+    <div class="user-select-grid" id="user-grid"></div>
+    <div class="pin-section" id="pin-section">
+      <div class="pin-label">Entre ton code PIN</div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key del" onclick="pinDel()">⌫</button>
+      </div>
+      <div class="err-msg" id="pin-error"></div>
+    </div>
+    <button class="new-user-btn" onclick="showRegister()">+ Nouveau membre</button>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="screen" id="screen-register">
+  <div style="max-width:360px;width:100%;padding:20px 20px 0;">
+    <button onclick="showLogin()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--muted)">←</button>
+  </div>
+  <div class="reg-card" style="margin-top:8px;">
+    <h2>Crée ton profil</h2>
+    <p>Choisis un avatar et un prénom</p>
+    <div class="avatar-pick" id="avatar-pick">
+      <div class="av-opt selected" data-av="🦊" onclick="pickAvatar(this)">🦊</div>
+      <div class="av-opt" data-av="🐼" onclick="pickAvatar(this)">🐼</div>
+      <div class="av-opt" data-av="🐸" onclick="pickAvatar(this)">🐸</div>
+      <div class="av-opt" data-av="🦁" onclick="pickAvatar(this)">🦁</div>
+      <div class="av-opt" data-av="🐻" onclick="pickAvatar(this)">🐻</div>
+      <div class="av-opt" data-av="🐯" onclick="pickAvatar(this)">🐯</div>
+    </div>
+    <div class="field-group">
+      <label>Prénom</label>
+      <input type="text" id="reg-name" placeholder="Ton prénom" maxlength="20" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label>Code PIN (4 chiffres)</label>
+      <input type="password" inputmode="numeric" id="reg-pin" placeholder="••••" maxlength="4" autocomplete="new-password">
+    </div>
+    <div class="err-msg" id="reg-error"></div>
+    <button class="btn-primary" onclick="register()">C'est parti !</button>
+    <button class="btn-secondary" onclick="showLogin()">Annuler</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="screen-home">
+  <div class="app-header">
+    <div class="header-user">
+      <div class="header-avatar" id="hdr-avatar">🦊</div>
+      <div class="header-name" id="hdr-name">...</div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-pill streak">🔥 <span id="hdr-streak">0</span></div>
+      <div class="stat-pill xp">⭐ <span id="hdr-xp">0</span></div>
+    </div>
+  </div>
+  <div class="home-content" id="tab-home">
+    <div class="section-title">🇷🇺 Parcours Russe</div>
+    <div class="lesson-path" id="lesson-path"></div>
+  </div>
+  <div id="tab-leaderboard">
+    <div class="lb-title">🏆 Classement</div>
+    <div class="lb-sub">Famille RusLearn</div>
+    <div id="lb-list"></div>
+  </div>
+  <div id="tab-profile">
+    <div class="profile-hero">
+      <div class="big-avatar" id="prof-avatar">🦊</div>
+      <div class="pname" id="prof-name">...</div>
+      <div class="plevel" id="prof-level">Niveau 1 · Débutant</div>
+      <div class="stats-row">
+        <div class="stat-card xp"><div class="sv" id="prof-xp">0</div><div class="sl">XP Total</div></div>
+        <div class="stat-card streak"><div class="sv" id="prof-streak">0</div><div class="sl">Jours</div></div>
+        <div class="stat-card done"><div class="sv" id="prof-done">0</div><div class="sl">Leçons</div></div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Se déconnecter</button>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="switchTab('home')">
+      <span class="nav-icon">📚</span>Apprendre
+    </button>
+    <button class="nav-item" id="nav-leaderboard" onclick="switchTab('leaderboard')">
+      <span class="nav-icon">🏆</span>Classement
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+      <span class="nav-icon">👤</span>Profil
+    </button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-header">
+    <button class="quit-btn" onclick="quitQuiz()">✕</button>
+    <div class="quiz-progress-track">
+      <div class="quiz-progress-fill" id="q-progress"></div>
+    </div>
+    <div class="quiz-hearts">❤️ <span id="q-hearts">5</span></div>
+  </div>
+  <div class="quiz-body">
+    <div class="q-type" id="q-type"></div>
+    <div class="q-bubble" id="q-bubble"></div>
+    <div class="options-grid" id="q-options"></div>
+  </div>
+  <div class="feedback-bar" id="q-feedback">
+    <div class="fb-icon" id="fb-icon"></div>
+    <div class="fb-text">
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-detail" id="fb-detail"></div>
+    </div>
+    <button class="continue-btn" onclick="nextQ()">OK</button>
+  </div>
+  <div class="quiz-footer">
+    <button class="check-btn" id="check-btn" disabled onclick="checkAnswer()">VÉRIFIER</button>
+  </div>
+</div>
+
+<!-- COMPLETE -->
+<div class="screen" id="screen-complete">
+  <div class="trophy-anim">🏆</div>
+  <div class="complete-title">Leçon terminée !</div>
+  <div class="complete-sub" id="complete-msg">Excellent travail !</div>
+  <div class="complete-stats">
+    <div class="cs-box cs-xp"><div class="cs-val" id="cs-xp">0</div><div class="cs-lab">XP gagné</div></div>
+    <div class="cs-box cs-time"><div class="cs-val" id="cs-time">0s</div><div class="cs-lab">Temps</div></div>
+    <div class="cs-box cs-acc"><div class="cs-val" id="cs-acc">0%</div><div class="cs-lab">Précision</div></div>
+  </div>
+  <button class="home-btn" onclick="goHome()">CONTINUER</button>
+</div>
+
+<script>
+// =============================================
+// CONFIG SUPABASE — À remplir après création
+// =============================================
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+// =============================================
+// COURS DE RUSSE — Leçons et questions
+// =============================================
+const LESSONS = [
+  {
+    id: 1,
+    title: 'Bonjour !',
+    emoji: '👋',
+    xpReward: 20,
+    questions: [
+      { type: 'Traduction', q: 'Comment dit-on "Bonjour" en russe ?', hint: 'Salutation formelle', options: [{e:'👋',ru:'Привет',fr:'Salut'},{e:'🌙',ru:'Спокойной ночи',fr:'Bonne nuit'},{e:'✅',ru:'Здравствуйте',fr:'Bonjour (formel)'},{e:'👋',ru:'Пока',fr:'Au revoir'}], correct: 2 },
+      { type: 'Traduction', q: 'Que signifie "Привет" ?', hint: 'Salutation informelle', options: [{e:'🌙',ru:'Bonne nuit',fr:''},{e:'👋',ru:'Salut',fr:''},{e:'🍕',ru:'Pizza',fr:''},{e:'❓',ru:'Pourquoi',fr:''}], correct: 1 },
+      { type: 'Choisissez', q: '"Спасибо" signifie…', hint: 'Formule de politesse', options: [{e:'😊',ru:'Bonjour',fr:''},{e:'🙏',ru:'Merci',fr:''},{e:'👋',ru:'Au revoir',fr:''},{e:'❓',ru:'S\'il vous plaît',fr:''}], correct: 1 },
+      { type: 'Traduction', q: 'Comment dit-on "Au revoir" ?', hint: 'Pour conclure', options: [{e:'👋',ru:'До свидания',fr:'Au revoir'},{e:'🌙',ru:'Добрый вечер',fr:'Bonsoir'},{e:'✅',ru:'Пожалуйста',fr:'S\'il vous plaît'},{e:'😊',ru:'Привет',fr:'Salut'}], correct: 0 },
+      { type: 'Vocabulaire', q: '"Пожалуйста" veut dire…', hint: 'Politesse', options: [{e:'🙏',ru:'S\'il vous plaît',fr:''},{e:'😊',ru:'Bonjour',fr:''},{e:'👋',ru:'Salut',fr:''},{e:'❓',ru:'Excusez-moi',fr:''}], correct: 0 },
+    ]
+  },
+  {
+    id: 2,
+    title: 'Chiffres',
+    emoji: '🔢',
+    xpReward: 25,
+    questions: [
+      { type: 'Vocabulaire', q: 'Comment dit-on "Un" (1) en russe ?', hint: 'Premier chiffre', options: [{e:'1️⃣',ru:'Один',fr:'Un'},{e:'2️⃣',ru:'Два',fr:'Deux'},{e:'3️⃣',ru:'Три',fr:'Trois'},{e:'4️⃣',ru:'Четыре',fr:'Quatre'}], correct: 0 },
+      { type: 'Vocabulaire', q: 'Que signifie "Пять" ?', hint: 'Un chiffre', options: [{e:'3️⃣',ru:'Trois',fr:''},{e:'4️⃣',ru:'Quatre',fr:''},{e:'5️⃣',ru:'Cinq',fr:''},{e:'6️⃣',ru:'Six',fr:''}], correct: 2 },
+      { type: 'Choisissez', q: 'Quel est le russe pour "Dix" (10) ?', hint: 'Dernier chiffre à un digit', options: [{e:'7️⃣',ru:'Семь',fr:'Sept'},{e:'9️⃣',ru:'Девять',fr:'Neuf'},{e:'🔟',ru:'Десять',fr:'Dix'},{e:'8️⃣',ru:'Восемь',fr:'Huit'}], correct: 2 },
+      { type: 'Vocabulaire', q: '"Два" signifie…', hint: 'Chiffre pair', options: [{e:'1️⃣',ru:'Un',fr:''},{e:'2️⃣',ru:'Deux',fr:''},{e:'3️⃣',ru:'Trois',fr:''},{e:'4️⃣',ru:'Quatre',fr:''}], correct: 1 },
+      { type: 'Traduction', q: 'Comment dit-on "Trois" en russe ?', hint: '', options: [{e:'3️⃣',ru:'Три',fr:'Trois'},{e:'6️⃣',ru:'Шесть',fr:'Six'},{e:'8️⃣',ru:'Восемь',fr:'Huit'},{e:'2️⃣',ru:'Два',fr:'Deux'}], correct: 0 },
+    ]
+  },
+  {
+    id: 3,
+    title: 'Couleurs',
+    emoji: '🎨',
+    xpReward: 30,
+    questions: [
+      { type: 'Vocabulaire', q: 'Comment dit-on "Rouge" en russe ?', hint: 'Couleur du drapeau', options: [{e:'🔴',ru:'Красный',fr:'Rouge'},{e:'🔵',ru:'Синий',fr:'Bleu'},{e:'🟡',ru:'Жёлтый',fr:'Jaune'},{e:'🟢',ru:'Зелёный',fr:'Vert'}], correct: 0 },
+      { type: 'Choisissez', q: '"Белый" signifie…', hint: 'Couleur de la neige', options: [{e:'⚫',ru:'Noir',fr:''},{e:'⚪',ru:'Blanc',fr:''},{e:'🟤',ru:'Marron',fr:''},{e:'🟣',ru:'Violet',fr:''}], correct: 1 },
+      { type: 'Traduction', q: 'Quel est le russe pour "Bleu" ?', hint: '', options: [{e:'🔵',ru:'Синий',fr:'Bleu'},{e:'🟢',ru:'Зелёный',fr:'Vert'},{e:'🔴',ru:'Красный',fr:'Rouge'},{e:'🟡',ru:'Жёлтый',fr:'Jaune'}], correct: 0 },
+      { type: 'Vocabulaire', q: '"Чёрный" veut dire…', hint: 'Couleur sombre', options: [{e:'⚪',ru:'Blanc',fr:''},{e:'🟤',ru:'Marron',fr:''},{e:'⚫',ru:'Noir',fr:''},{e:'🟣',ru:'Violet',fr:''}], correct: 2 },
+      { type: 'Choisissez', q: 'Comment dit-on "Vert" en russe ?', hint: 'Couleur des arbres', options: [{e:'🟡',ru:'Жёлтый',fr:'Jaune'},{e:'🟢',ru:'Зелёный',fr:'Vert'},{e:'🔵',ru:'Синий',fr:'Bleu'},{e:'🟤',ru:'Marron',fr:''}], correct: 1 },
+    ]
+  },
+  {
+    id: 4,
+    title: 'Famille',
+    emoji: '👨‍👩‍👧‍👦',
+    xpReward: 35,
+    questions: [
+      { type: 'Vocabulaire', q: 'Comment dit-on "Mère" en russe ?', hint: 'Parent féminin', options: [{e:'👩',ru:'Мама',fr:'Maman'},{e:'👨',ru:'Папа',fr:'Papa'},{e:'👧',ru:'Дочь',fr:'Fille'},{e:'👦',ru:'Сын',fr:'Fils'}], correct: 0 },
+      { type: 'Choisissez', q: '"Брат" signifie…', hint: 'Lien familial masculin', options: [{e:'👧',ru:'Sœur',fr:''},{e:'👦',ru:'Frère',fr:''},{e:'👴',ru:'Grand-père',fr:''},{e:'👵',ru:'Grand-mère',fr:''}], correct: 1 },
+      { type: 'Traduction', q: 'Quel est le russe pour "Grand-mère" ?', hint: 'Terme affectueux', options: [{e:'👵',ru:'Бабушка',fr:'Grand-mère'},{e:'👴',ru:'Дедушка',fr:'Grand-père'},{e:'👩',ru:'Тётя',fr:'Tante'},{e:'👨',ru:'Дядя',fr:'Oncle'}], correct: 0 },
+      { type: 'Vocabulaire', q: '"Сестра" veut dire…', hint: 'Lien familial féminin', options: [{e:'👦',ru:'Frère',fr:''},{e:'👧',ru:'Sœur',fr:''},{e:'👩',ru:'Mère',fr:''},{e:'👨',ru:'Père',fr:''}], correct: 1 },
+      { type: 'Choisissez', q: 'Comment dit-on "Père" en russe ?', hint: 'Parent masculin', options: [{e:'👨',ru:'Папа',fr:'Papa'},{e:'👩',ru:'Мама',fr:'Maman'},{e:'👦',ru:'Сын',fr:'Fils'},{e:'👴',ru:'Дедушка',fr:'Grand-père'}], correct: 0 },
+    ]
+  },
+  {
+    id: 5,
+    title: 'Nourriture',
+    emoji: '🍽️',
+    xpReward: 40,
+    questions: [
+      { type: 'Vocabulaire', q: 'Comment dit-on "Pain" en russe ?', hint: 'Aliment de base', options: [{e:'🍞',ru:'Хлеб',fr:'Pain'},{e:'🥛',ru:'Молоко',fr:'Lait'},{e:'🧀',ru:'Сыр',fr:'Fromage'},{e:'🥚',ru:'Яйцо',fr:'Œuf'}], correct: 0 },
+      { type: 'Choisissez', q: '"Вода" signifie…', hint: 'Essentiel à la vie', options: [{e:'🧃',ru:'Jus',fr:''},{e:'🍵',ru:'Thé',fr:''},{e:'💧',ru:'Eau',fr:''},{e:'🥛',ru:'Lait',fr:''}], correct: 2 },
+      { type: 'Traduction', q: 'Quel est le russe pour "Pomme" ?', hint: 'Fruit rouge ou vert', options: [{e:'🍊',ru:'Апельсин',fr:'Orange'},{e:'🍌',ru:'Банан',fr:'Banane'},{e:'🍎',ru:'Яблоко',fr:'Pomme'},{e:'🍇',ru:'Виноград',fr:'Raisin'}], correct: 2 },
+      { type: 'Vocabulaire', q: '"Мясо" veut dire…', hint: 'Protéine animale', options: [{e:'🥦',ru:'Légume',fr:''},{e:'🍖',ru:'Viande',fr:''},{e:'🐟',ru:'Poisson',fr:''},{e:'🍳',ru:'Œuf',fr:''}], correct: 1 },
+      { type: 'Choisissez', q: 'Comment dit-on "Thé" en russe ?', hint: 'Boisson chaude populaire en Russie', options: [{e:'☕',ru:'Кофе',fr:'Café'},{e:'🍵',ru:'Чай',fr:'Thé'},{e:'💧',ru:'Вода',fr:'Eau'},{e:'🥛',ru:'Молоко',fr:'Lait'}], correct: 1 },
+    ]
+  }
+];
+
+// =============================================
+// STATE
+// =============================================
+let currentUser = null;
+let allUsers = [];
+let selectedUserId = null;
+let pinInput = '';
+let quizState = {};
+let startTime = null;
+let db = null;
+
+// =============================================
+// SUPABASE CLIENT (CDN)
+// =============================================
+function initSupabase() {
+  if (typeof supabase !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  }
+  return false;
+}
+
+// =============================================
+// LOCAL STORAGE FALLBACK
+// =============================================
+function saveLocal(users) {
+  localStorage.setItem('ruslearn_users', JSON.stringify(users));
+}
+function loadLocal() {
+  try {
+    return JSON.parse(localStorage.getItem('ruslearn_users') || '[]');
+  } catch { return []; }
+}
+
+// =============================================
+// INIT
+// =============================================
+window.addEventListener('load', async () => {
+  initSupabase();
+  await loadUsers();
+  const savedId = localStorage.getItem('ruslearn_current');
+  if (savedId) {
+    const u = allUsers.find(u => u.id === savedId);
+    if (u) { loginUser(u); return; }
+  }
+  showLogin();
+  hideLoading();
+});
+
+function hideLoading() {
+  document.getElementById('loading').style.display = 'none';
+}
+
+// =============================================
+// USERS
+// =============================================
+async function loadUsers() {
+  if (db) {
+    try {
+      const { data } = await db.from('users').select('*');
+      if (data) { allUsers = data; saveLocal(allUsers); return; }
+    } catch {}
+  }
+  allUsers = loadLocal();
+}
+
+async function saveUser(user) {
+  const idx = allUsers.findIndex(u => u.id === user.id);
+  if (idx >= 0) allUsers[idx] = user; else allUsers.push(user);
+  saveLocal(allUsers);
+  if (db) {
+    try {
+      await db.from('users').upsert(user);
+    } catch {}
+  }
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// =============================================
+// LOGIN FLOW
+// =============================================
+function showLogin() {
+  pinInput = '';
+  selectedUserId = null;
+  renderUserGrid();
+  document.getElementById('pin-section').style.display = 'none';
+  showScreen('screen-login');
+  hideLoading();
+}
+
+function renderUserGrid() {
+  const grid = document.getElementById('user-grid');
+  grid.innerHTML = '';
+  allUsers.forEach(u => {
+    const done = u.completedLessons ? u.completedLessons.length : 0;
+    const btn = document.createElement('button');
+    btn.className = 'user-btn';
+    btn.innerHTML = `<div class="avatar">${u.avatar}</div><div class="uname">${u.name}</div><div class="ustats">${u.xp || 0} XP · ${done} leçons</div>`;
+    btn.onclick = () => selectUser(u.id, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function selectUser(id, btn) {
+  selectedUserId = id;
+  pinInput = '';
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updatePinDots();
+  document.getElementById('pin-section').style.display = 'block';
+  document.getElementById('pin-error').textContent = '';
+}
+
+function pinKey(k) {
+  if (pinInput.length >= 4) return;
+  pinInput += k;
+  updatePinDots();
+  if (pinInput.length === 4) {
+    setTimeout(checkPin, 100);
+  }
+}
+
+function pinDel() {
+  pinInput = pinInput.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  document.querySelectorAll('.pin-dot').forEach((d, i) => {
+    d.classList.toggle('filled', i < pinInput.length);
+  });
+}
+
+function checkPin() {
+  const user = allUsers.find(u => u.id === selectedUserId);
+  if (!user) return;
+  if (user.pin === pinInput) {
+    loginUser(user);
+  } else {
+    document.getElementById('pin-error').textContent = 'PIN incorrect. Réessaie.';
+    pinInput = '';
+    updatePinDots();
+    navigator.vibrate && navigator.vibrate([50, 50, 50]);
+  }
+}
+
+function loginUser(user) {
+  currentUser = user;
+  localStorage.setItem('ruslearn_current', user.id);
+  renderHome();
+  showScreen('screen-home');
+  hideLoading();
+}
+
+function logout() {
+  localStorage.removeItem('ruslearn_current');
+  currentUser = null;
+  showLogin();
+}
+
+// =============================================
+// REGISTER
+// =============================================
+let selectedAvatar = '🦊';
+
+function showRegister() {
+  document.getElementById('reg-name').value = '';
+  document.getElementById('reg-pin').value = '';
+  document.getElementById('reg-error').textContent = '';
+  showScreen('screen-register');
+}
+
+function pickAvatar(el) {
+  document.querySelectorAll('.av-opt').forEach(a => a.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAvatar = el.dataset.av;
+}
+
+async function register() {
+  const name = document.getElementById('reg-name').value.trim();
+  const pin = document.getElementById('reg-pin').value.trim();
+  const err = document.getElementById('reg-error');
+  if (!name) { err.textContent = 'Entre ton prénom.'; return; }
+  if (!/^\d{4}$/.test(pin)) { err.textContent = 'Le PIN doit avoir 4 chiffres.'; return; }
+  if (allUsers.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+    err.textContent = 'Ce prénom est déjà pris.'; return;
+  }
+  const user = {
+    id: generateId(),
+    name, pin,
+    avatar: selectedAvatar,
+    xp: 0,
+    streak: 0,
+    completedLessons: [],
+    lastActive: new Date().toISOString(),
+    createdAt: new Date().toISOString()
+  };
+  await saveUser(user);
+  showToast('Profil créé ! Bienvenue ' + name + ' 🎉');
+  loginUser(user);
+}
+
+// =============================================
+// HOME
+// =============================================
+function renderHome() {
+  document.getElementById('hdr-avatar').textContent = currentUser.avatar;
+  document.getElementById('hdr-name').textContent = currentUser.name;
+  document.getElementById('hdr-xp').textContent = currentUser.xp || 0;
+  document.getElementById('hdr-streak').textContent = currentUser.streak || 0;
+  renderLessonPath();
+  renderProfile();
+  renderLeaderboard();
+}
+
+function renderLessonPath() {
+  const path = document.getElementById('lesson-path');
+  path.innerHTML = '';
+  const completed = currentUser.completedLessons || [];
+
+  LESSONS.forEach((lesson, i) => {
+    const isDone = completed.includes(lesson.id);
+    const isAvail = i === 0 || completed.includes(LESSONS[i - 1].id);
+    const isLocked = !isAvail;
+
+    if (i > 0) {
+      const conn = document.createElement('div');
+      conn.className = 'path-connector' + (isDone || (isAvail && i > 0) ? ' done' : '');
+      path.appendChild(conn);
+    }
+
+    const row = document.createElement('div');
+    row.className = 'path-row' + (i % 3 === 1 ? ' offset' : i % 3 === 2 ? ' offset-neg' : '');
+
+    const btn = document.createElement('button');
+    btn.className = 'lesson-node ' + (isDone ? 'completed' : isAvail ? 'available' : 'locked');
+    btn.innerHTML = `${isDone ? '<span class="crown">👑</span>' : ''}<span class="node-icon">${lesson.emoji}</span>${lesson.title}`;
+    if (!isLocked) btn.onclick = () => startLesson(lesson);
+    else btn.onclick = () => showToast('Termine la leçon précédente d\'abord !');
+
+    row.appendChild(btn);
+    path.appendChild(row);
+  });
+}
+
+function renderProfile() {
+  const u = currentUser;
+  document.getElementById('prof-avatar').textContent = u.avatar;
+  document.getElementById('prof-name').textContent = u.name;
+  const done = u.completedLessons ? u.completedLessons.length : 0;
+  const level = Math.floor((u.xp || 0) / 100) + 1;
+  const titles = ['Débutant','Apprenti','Intermédiaire','Avancé','Expert','Maître'];
+  document.getElementById('prof-level').textContent = `Niveau ${level} · ${titles[Math.min(level-1, titles.length-1)]}`;
+  document.getElementById('prof-xp').textContent = u.xp || 0;
+  document.getElementById('prof-streak').textContent = u.streak || 0;
+  document.getElementById('prof-done').textContent = done;
+}
+
+function renderLeaderboard() {
+  const sorted = [...allUsers].sort((a, b) => (b.xp || 0) - (a.xp || 0));
+  const list = document.getElementById('lb-list');
+  list.innerHTML = '';
+  const rankEmojis = ['🥇', '🥈', '🥉'];
+  const rankClass = ['gold', 'silver', 'bronze'];
+  sorted.forEach((u, i) => {
+    const isMe = u.id === currentUser.id;
+    const row = document.createElement('div');
+    row.className = 'lb-row' + (isMe ? ' me' : '');
+    row.innerHTML = `
+      <div class="lb-rank ${rankClass[i] || ''}">${i < 3 ? rankEmojis[i] : i + 1}</div>
+      <div class="lb-avatar">${u.avatar}</div>
+      <div class="lb-info">
+        <div class="lb-name">${u.name}${isMe ? ' (toi)' : ''}</div>
+        <div class="lb-xp">${u.xp || 0} XP · ${u.completedLessons ? u.completedLessons.length : 0} leçons</div>
+      </div>
+      <div class="lb-badge">${(u.completedLessons || []).length >= LESSONS.length ? '🏆' : ''}</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-home').style.display = tab === 'home' ? 'block' : 'none';
+  document.getElementById('tab-leaderboard').style.display = tab === 'leaderboard' ? 'block' : 'none';
+  document.getElementById('tab-profile').style.display = tab === 'profile' ? 'block' : 'none';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'leaderboard') renderLeaderboard();
+  if (tab === 'profile') renderProfile();
+}
+
+// =============================================
+// QUIZ
+// =============================================
+function startLesson(lesson) {
+  quizState = {
+    lesson,
+    questions: [...lesson.questions].sort(() => Math.random() - 0.5),
+    current: 0,
+    selected: null,
+    hearts: 5,
+    xpEarned: 0,
+    correct: 0,
+    answered: false
+  };
+  startTime = Date.now();
+  renderQuestion();
+  showScreen('screen-quiz');
+}
+
+function renderQuestion() {
+  const qs = quizState;
+  const q = qs.questions[qs.current];
+  const pct = (qs.current / qs.questions.length * 100);
+  document.getElementById('q-progress').style.width = pct + '%';
+  document.getElementById('q-hearts').textContent = qs.hearts;
+  document.getElementById('q-type').textContent = q.type;
+  document.getElementById('q-bubble').innerHTML = q.q + (q.hint ? `<div class="q-hint">💡 ${q.hint}</div>` : '');
+
+  const grid = document.getElementById('q-options');
+  grid.innerHTML = '';
+  const opts = [...q.options].map((o, i) => ({...o, origIdx: i})).sort(() => Math.random() - 0.5);
+  quizState.shuffledOpts = opts;
+
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-emoji">${opt.e}</span><span class="opt-ru">${opt.ru}</span>${opt.fr ? `<span class="opt-fr">${opt.fr}</span>` : ''}`;
+    btn.onclick = () => selectOpt(i, btn);
+    grid.appendChild(btn);
+  });
+
+  qs.selected = null;
+  qs.answered = false;
+  document.getElementById('check-btn').disabled = true;
+  document.getElementById('check-btn').style.display = 'inline-block';
+  document.getElementById('q-feedback').style.display = 'none';
+}
+
+function selectOpt(idx, btn) {
+  if (quizState.answered) return;
+  quizState.selected = idx;
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('check-btn').disabled = false;
+}
+
+function checkAnswer() {
+  if (quizState.selected === null || quizState.answered) return;
+  quizState.answered = true;
+  const qs = quizState;
+  const q = qs.questions[qs.current];
+  const selectedOpt = qs.shuffledOpts[qs.selected];
+  const isCorrect = selectedOpt.origIdx === q.correct;
+
+  document.getElementById('check-btn').style.display = 'none';
+  const fb = document.getElementById('q-feedback');
+  const opts = document.querySelectorAll('.opt-btn');
+
+  opts[qs.selected].classList.remove('selected');
+
+  if (isCorrect) {
+    opts[qs.selected].classList.add('correct');
+    fb.className = 'feedback-bar ok';
+    document.getElementById('fb-icon').textContent = '🎉';
+    document.getElementById('fb-title').textContent = ['Super !', 'Excellent !', 'Parfait !', 'Bravo !'][Math.floor(Math.random()*4)];
+    document.getElementById('fb-detail').textContent = '+10 XP · Continue !';
+    qs.xpEarned += 10;
+    qs.correct++;
+  } else {
+    opts[qs.selected].classList.add('wrong');
+    // Show correct
+    qs.shuffledOpts.forEach((o, i) => {
+      if (o.origIdx === q.correct) opts[i].classList.add('correct');
+    });
+    fb.className = 'feedback-bar ko';
+    document.getElementById('fb-icon').textContent = '💔';
+    document.getElementById('fb-title').textContent = 'Pas tout à fait…';
+    document.getElementById('fb-detail').textContent = 'Bonne réponse : ' + q.options[q.correct].ru;
+    qs.hearts = Math.max(0, qs.hearts - 1);
+    document.getElementById('q-hearts').textContent = qs.hearts;
+  }
+
+  fb.style.display = 'flex';
+}
+
+function nextQ() {
+  quizState.current++;
+  if (quizState.current >= quizState.questions.length || quizState.hearts === 0) {
+    finishLesson();
+  } else {
+    renderQuestion();
+  }
+}
+
+async function finishLesson() {
+  const qs = quizState;
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const acc = Math.round(qs.correct / qs.questions.length * 100);
+
+  // Update user data
+  currentUser.xp = (currentUser.xp || 0) + qs.xpEarned;
+  if (!currentUser.completedLessons) currentUser.completedLessons = [];
+  if (!currentUser.completedLessons.includes(qs.lesson.id)) {
+    currentUser.completedLessons.push(qs.lesson.id);
+    currentUser.xp += qs.lesson.xpReward;
+    qs.xpEarned += qs.lesson.xpReward;
+  }
+  currentUser.streak = (currentUser.streak || 0) + 1;
+  currentUser.lastActive = new Date().toISOString();
+  await saveUser(currentUser);
+
+  document.getElementById('cs-xp').textContent = qs.xpEarned;
+  document.getElementById('cs-time').textContent = elapsed + 's';
+  document.getElementById('cs-acc').textContent = acc + '%';
+  const msgs = ['Incroyable ! 🦉', 'Excellent travail ! 💪', 'Tu progresses vite ! 🌟', 'Молодец ! (Bien joué !)'];
+  document.getElementById('complete-msg').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+
+  showScreen('screen-complete');
+}
+
+function quitQuiz() {
+  if (confirm('Abandonner la leçon ?')) goHome();
+}
+
+function goHome() {
+  renderHome();
+  showScreen('screen-home');
+  switchTab('home');
+}
+
+// =============================================
+// UTILS
+// =============================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+
+<!-- Service Worker registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+
+<!-- Supabase CDN (optionnel — fonctionne aussi sans) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// Ré-init après chargement du CDN
+window.addEventListener('DOMContentLoaded', () => {
+  if (typeof supabase !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+});
+</script>
+
+</body>
+</html>
